@@ -1,0 +1,186 @@
+---
+rule-providers:
+  Direct:
+    type: file
+    behavior: classical
+    path: "./rule_provider/direct.yaml"
+  Reject:
+    type: file
+    behavior: classical
+    path: "./rule_provider/reject.yaml"
+  Streaming:
+    type: file
+    behavior: classical
+    path: "./rule_provider/streaming.yaml"
+  Games:
+    type: file
+    behavior: classical
+    path: "./rule_provider/games.yaml"
+  Sosmed:
+    type: file
+    behavior: classical
+    path: "./rule_provider/sosmed.yaml"
+  Ewallet:
+    type: file
+    behavior: classical
+    path: "./rule_provider/ewallet.yaml"
+proxy-providers:
+  Vmess:
+    type: file
+    path: "./proxy_provider/vmess.yaml"
+    health-check:
+      enable: true
+      url: http://www.gstatic.com/generate_204
+      interval: 30
+  Vless:
+    type: file
+    path: "./proxy_provider/vless.yaml"
+    health-check:
+      enable: true
+      url: http://www.gstatic.com/generate_204
+      interval: 30
+  Trojan:
+    type: file
+    path: "./proxy_provider/trojan.yaml"
+    health-check:
+      enable: true
+      url: http://www.gstatic.com/generate_204
+      interval: 30
+proxy-groups:
+- name: Streaming
+  type: load-balance
+  strategy: round-robin
+  disable-udp: false
+  proxies:
+  - DIRECT
+  url: http://www.gstatic.com/generate_204
+  interval: '300'
+  interface-name: eth2
+- name: Games
+  type: load-balance
+  strategy: round-robin
+  disable-udp: false
+  proxies:
+  - DIRECT
+  url: http://www.gstatic.com/generate_204
+  interval: '300'
+  interface-name: eth1
+- name: Ewallet
+  type: load-balance
+  strategy: round-robin
+  disable-udp: false
+  proxies:
+  - DIRECT
+  url: http://www.gstatic.com/generate_204
+  interval: '300'
+  interface-name: eth1
+- name: Sosmed
+  type: load-balance
+  strategy: round-robin
+  disable-udp: false
+  proxies:
+  - DIRECT
+  url: http://www.gstatic.com/generate_204
+  interval: '300'
+  interface-name: eth2
+- name: Auto
+  type: load-balance
+  strategy: round-robin
+  disable-udp: false
+  proxies:
+  - DIRECT
+  url: http://www.gstatic.com/generate_204
+  interval: '300'
+  interface-name: eth1
+dns:
+  nameserver:
+  - 9.9.9.9
+  - 149.112.112.112
+  enable: true
+  ipv6: false
+  enhanced-mode: redir-host
+  listen: 0.0.0.0:7874
+  fake-ip-filter:
+  - "+.*"
+  default-nameserver:
+  - 9.9.9.9
+  - 149.112.112.112
+  fallback:
+  - 9.9.9.9
+  - 149.112.112.112
+  fallback-filter:
+    geoip: true
+    geoip-code: ID
+    ipcidr:
+    - 0.0.0.0/8
+    - 10.0.0.0/8
+    - 100.64.0.0/10
+    - 127.0.0.0/8
+    - 169.254.0.0/16
+    - 172.16.0.0/12
+    - 192.0.0.0/24
+    - 192.0.2.0/24
+    - 192.88.99.0/24
+    - 192.168.0.0/16
+    - 198.18.0.0/15
+    - 198.51.100.0/24
+    - 203.0.113.0/24
+    - 224.0.0.0/4
+    - 240.0.0.0/4
+    - 255.255.255.255/32
+    domain:
+    - "+.google.com"
+    - "+.facebook.com"
+    - "+.youtube.com"
+    - "+.githubusercontent.com"
+    - "+.googlevideo.com"
+    - "+.msftconnecttest.com"
+    - "+.msftncsi.com"
+    - msftconnecttest.com
+    - msftncsi.com
+    - "+.*"
+redir-port: 7892
+tproxy-port: 7895
+port: 7890
+socks-port: 7891
+mixed-port: 7893
+mode: rule
+log-level: silent
+allow-lan: true
+unified-delay: true
+external-controller: 0.0.0.0:9090
+secret: reyre
+bind-address: "*"
+external-ui: "/usr/share/openclash/ui"
+ipv6: false
+profile:
+  store-selected: true
+  store-fake-ip: true
+rules:
+- DST-PORT,7895,REJECT
+- DST-PORT,7892,REJECT
+- IP-CIDR,198.18.0.1/16,REJECT,no-resolve
+- DOMAIN-SUFFIX,quiz.vidio.com,DIRECT,no-resolve
+- IP-CIDR,8.8.8.8/32,DIRECT,no-resolve
+- RULE-SET,Sosmed,Sosmed
+- RULE-SET,Ewallet,Ewallet
+- RULE-SET,Streaming,Streaming
+- RULE-SET,Games,Games
+- RULE-SET,Direct,DIRECT
+- RULE-SET,Reject,REJECT
+- MATCH,GLOBAL
+tcp-concurrent: true
+sniffer:
+  enable: true
+  parse-pure-ip: true
+geodata-loader: memconservative
+keep-alive-interval: 1800
+tun:
+  enable: true
+  stack: system
+  device: utun
+  auto-route: false
+  auto-detect-interface: false
+  dns-hijack:
+  - tcp://any:53
+global-client-fingerprint: chrome
